@@ -39,16 +39,17 @@
 	#define senzor_web_teplota	"&sensor[marcel_teplota_prace]="
 	#define senzor_web_vlhkost	"&sensor[marcel_vlhkost_prace]="
 	#define senzor_web_jas		"&sensor[marcel_jas_prace]="
-	#define pin_red_led			15
-	#define pin_green_led		12
-	#define pin_blue_led		13
+	#define senzor_web_restart	"&sensor[marcel_restart]="
+//	#define pin_red_led			15
+//	#define pin_green_led		12
+//	#define pin_blue_led		13
 
 #else
 	#define senzor_web_teplota	"&sensor[marcel_teplota_doma]="
 	#define senzor_web_vlhkost	"&sensor[marcel_vlhkost_doma]="
 	#define senzor_web_restart	"&sensor[marcel_restart]="
 #endif
-#define led_pin_mb	2
+
 
 
 /* FreeRTOS event group to signal when we are connected*/
@@ -64,7 +65,7 @@ static int s_retry_num = 0;
 //#define WEB_URL "http://meter.v108b.com/sensor/receive/?module=marcel&sensor[marcel_teplota]=22.0"
 
 static const char *TAG1 = "example";
-static const char *HODNOTA11 = "hodnota11";
+//static const char *HODNOTA11 = "hodnota11";
 
 //static const char *REQUEST = "GET " WEB_URL " HTTP/1.0\r\n"
 //    "Host: "WEB_SERVER"\r\n"
@@ -406,10 +407,10 @@ void blik_led(void *pvParameters) {
 	static const char *TAG = "LED BLIK";
 	for (;;) {
 //		ESP_LOGI(TAG, "led blik");
-		gpio_set_level(led_pin_mb, 0);
+		gpio_set_level(led_mb_num, 0);
 		vTaskDelay(cas / portTICK_PERIOD_MS);
 //		os_delay_us(1000);
-		gpio_set_level(led_pin_mb, 1);
+		gpio_set_level(led_mb_num, 1);
 		esp_task_wdt_reset();
 		vTaskDelay(6 / portTICK_PERIOD_MS);
 	}
@@ -561,6 +562,11 @@ void cas_to_led(void *pvParameters){
 	}
 }
 
+void num_to_led(uint16_t num ){
+	char buf[5];
+	itoa(num,buf,10);
+	led_print(0, &buf);
+}
 void app_main()
 {
 //	uint16_t adc_data = 0;
@@ -568,7 +574,6 @@ void app_main()
 //	adc_conf.mode = ADC_READ_TOUT_MODE;
 //	adc_conf.clk_div = 8;
 //	adc_init(&adc_conf);
-	gpio_set_direction(led_pin_mb, GPIO_MODE_OUTPUT);
 //
 //	/* priprava wifi */
 	ESP_ERROR_CHECK(nvs_flash_init());
@@ -582,14 +587,26 @@ void app_main()
 	conf.pull_up_en = 1;
 	conf.mode = GPIO_MODE_INPUT;
 	gpio_config(&conf);
+//	conf.pin_bit_mask = (1<<led_mb_num);
+//	conf.mode = GPIO_MODE_DEF_OUTPUT;
+//	gpio_config(&conf);
+//	gpio_set_direction(led_mb_num, GPIO_MODE_OUTPUT);
+
     TM1637_SERIAL_INIT;
-
+    uint8_t blik_sw = 1;
+    led_print(0, "OK");
+    vTaskDelay(1000/portTICK_PERIOD_MS);
     while(1){
-
-
-
-		cas_to_led(0);
+//    	adc_read(&adc_data);
+//    	num_to_led(adc_data);
+//		led_print(0, "1234");
+    	cas_to_led(0);
 		vTaskDelay(1000/portTICK_PERIOD_MS);
+
+//		ESP_LOGI(TAG1,"blik\n");
+//		gpio_set_level(led_mb_num, 1);
+//		vTaskDelay(200/portTICK_PERIOD_MS);
+//		gpio_set_level(led_mb_num, 0);
 
 	}
 //	xTaskCreate(tisk_teplota, "tiskteplota", 2000, NULL, 1, NULL);

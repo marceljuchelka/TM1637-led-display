@@ -11,13 +11,13 @@
 #include "driver/i2c.h"
 #include "driver/gpio.h"
 
+#define led_mb_num	GPIO_NUM_2
 
 /* deklarace */
-#define witty  0
+#define witty  1
 #if witty == 1
 #define EXAMPLE_ESP_WIFI_SSID       "Svereo wifi"
 #define EXAMPLE_ESP_WIFI_PASS		"svereo1122"
-#define jas							3
 #else
 #define EXAMPLE_ESP_WIFI_SSID       "Hoass"
 #define EXAMPLE_ESP_WIFI_PASS		"Hoas12345"
@@ -40,8 +40,8 @@ enum {
 
 
 /* pro TM_1637 displej dekuji https://github.com/AlexAlexFr  */
-#define TM_1637_DIO	GPIO_NUM_14
-#define TM_1637_CLK	GPIO_NUM_12
+#define TM_1637_DIO	GPIO_NUM_2
+#define TM_1637_CLK	GPIO_NUM_1
 
 
 #define DIO_INP  	gpio_set_direction(TM_1637_DIO, GPIO_MODE_DEF_INPUT)
