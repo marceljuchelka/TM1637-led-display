@@ -24,6 +24,7 @@
 #include "driver/adc.h"
 #include "driver/gpio.h"
 #include "driver/i2c.h"
+#include "driver/ir_rx.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -75,6 +76,47 @@ static const char *TAG1 = "example";
 //static const char	*http_web_url 	=	"GET " WEB_URL " HTTP/1.0\r\n"
 //static const char	*http_host 		= 	"Host: "WEB_SERVER"\r\n";
 //static const char	*http_user 		= 	"User-Agent: esp-idf/1.0 esp32\r\n r\n";
+
+#define IR_RX_IO_NUM 0
+#define IR_RX_BUF_LEN 128
+
+static esp_err_t ir_rx_nec_code_check(ir_rx_nec_data_t nec_code)
+{
+
+    if ((nec_code.addr1 != ((~nec_code.addr2) & 0xff))) {
+        return ESP_FAIL;
+    }
+
+    if ((nec_code.cmd1 != ((~nec_code.cmd2) & 0xff))) {
+        return ESP_FAIL;
+    }
+
+    return ESP_OK;
+}
+
+void ir_rx_task(void *arg)
+{
+    ir_rx_nec_data_t ir_data;
+    ir_rx_config_t ir_rx_config = {
+        .io_num = IR_RX_IO_NUM,
+        .buf_len = IR_RX_BUF_LEN
+    };
+    ir_rx_init(&ir_rx_config);
+
+    while (1) {
+        ir_data.val = 0;
+        ir_rx_recv_data(&ir_data, 1, portMAX_DELAY);
+        ESP_LOGI(TAG, "addr1: 0x%x, addr2: 0x%x, cmd1: 0x%x, cmd2: 0x%x", ir_data.addr1, ir_data.addr2, ir_data.cmd1, ir_data.cmd2);
+
+        if (ESP_OK == ir_rx_nec_code_check(ir_data)) {
+            ESP_LOGI(TAG, "ir rx nec data:  0x%x", ir_data.cmd1);
+        } else {
+            ESP_LOGI(TAG, "Non-standard nec infrared protocol");
+        }
+    }
+
+    vTaskDelete(NULL);
+}
 
 /* priprava SMTP  */
 static void initialize_sntp(void)
@@ -377,7 +419,7 @@ void tisk_vlhkost(void *pvParameters){
 	char *TAG = "tisk_vlhkost";
 	for(;;){
 	printf("tisk vlhkost 2\n");
-//    ESP_LOGI(TAG, "Free heap size: %d\n", esp_get_free_heap_size());
+    ESP_LOGI(TAG, "Free heap size: %d\n", esp_get_free_heap_size());
 	vTaskDelay(1000 / portTICK_PERIOD_MS);
 	}
 }
@@ -551,21 +593,27 @@ void cas_to_led(void *pvParameters){
     if(timeinfo.tm_hour>6 && (timeinfo.tm_hour< 21)) led_day_set();
     else led_night_set();
     strftime(strftime_buf, sizeof(strftime_buf), "%H%M", &timeinfo);
-//    printf(strftime_buf);
-//    ESP_LOGI(TAG,strftime_buf);
-	led_print(0, strftime_buf);
-	if(timeinfo.tm_sec &1) {
-		led_dots(1);
-	}
-	else {
-		led_dots(0);
-	}
+    printf(strftime_buf);
+    ESP_LOGI(TAG,strftime_buf);
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    for(;;);
+
+//	led_print(0, strftime_buf);
+//	if(timeinfo.tm_sec &1) {
+//		led_dots(1);
+//	}
+//	else {
+//		led_dots(0);
+//	}
 }
 
 void num_to_led(uint16_t num ){
-	char buf[5];
-	itoa(num,buf,10);
-	led_print(0, &buf);
+	const char *TAG = "numtoled";
+	char buf[10];
+	sprintf(buf,"%d\n",num);
+//	printf(buf);
+	led_print(0, buf);
+//	ESP_LOGI(TAG,"konec\n");
 }
 void app_main()
 {
@@ -573,53 +621,51 @@ void app_main()
 //	adc_config_t adc_conf;
 //	adc_conf.mode = ADC_READ_TOUT_MODE;
 //	adc_conf.clk_div = 8;
-//	adc_init(&adc_conf);
-//
+//	if((adc_init(&adc_conf))!= ESP_OK) ESP_LOGI(TAG,"chyba");
+//	gpio_config_t conf;
+//	conf.pin_bit_mask = (1<<TM_1637_CLK)|(1<<TM_1637_DIO);
+//	conf.pull_up_en = 1;
+//	conf.mode = GPIO_MODE_INPUT;
+//	gpio_config(&conf);
+//	TM1637_SERIAL_INIT;
 //	/* priprava wifi */
-	ESP_ERROR_CHECK(nvs_flash_init());
-	ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
-	wifi_init_sta();
-//	vTaskDelay(2000/portTICK_PERIOD_MS);
+//	ESP_ERROR_CHECK(nvs_flash_init());
+//	ESP_LOGI(TAG, "ESP_WIFI_MODE_STA");
+//	wifi_init_sta();
+	vTaskDelay(5000/portTICK_PERIOD_MS);
 //
 
-	gpio_config_t conf;
-	conf.pin_bit_mask = (1<<TM_1637_CLK)|(1<<TM_1637_DIO);
-	conf.pull_up_en = 1;
-	conf.mode = GPIO_MODE_INPUT;
-	gpio_config(&conf);
-//	conf.pin_bit_mask = (1<<led_mb_num);
+
+	//	conf.pin_bit_mask = (1<<led_mb_num);
 //	conf.mode = GPIO_MODE_DEF_OUTPUT;
 //	gpio_config(&conf);
 //	gpio_set_direction(led_mb_num, GPIO_MODE_OUTPUT);
 
-    TM1637_SERIAL_INIT;
-    uint8_t blik_sw = 1;
-    led_print(0, "OK");
-    vTaskDelay(1000/portTICK_PERIOD_MS);
-    while(1){
+
+//    vTaskDelay(2000/portTICK_PERIOD_MS);
+//    cas_to_led(0);
+//    led_day_set();
+//    vTaskDelay(2000/portTICK_PERIOD_MS);
+//    xTaskCreate(cas_to_led, "Tisk_Casu", 4096, NULL, 0, NULL);
+	xTaskCreate(ir_rx_task, "ir_rx_task", 2048, NULL, 5, NULL);
+//	for(;;){
+
+//    while(1){
 //    	adc_read(&adc_data);
-//    	num_to_led(adc_data);
-//		led_print(0, "1234");
-    	cas_to_led(0);
-		vTaskDelay(1000/portTICK_PERIOD_MS);
-
-//		ESP_LOGI(TAG1,"blik\n");
+//		led_print(0, "1111");
+//    	cas_to_led(0);
+//		vTaskDelay(1000/portTICK_PERIOD_MS);
+//		ESP_LOGI(TAG,"hodnota GPIO 0 = %d\n", adc_data);
 //		gpio_set_level(led_mb_num, 1);
-//		vTaskDelay(200/portTICK_PERIOD_MS);
-//		gpio_set_level(led_mb_num, 0);
 
-	}
+//    	num_to_led(adc_data);
+//	}
 //	xTaskCreate(tisk_teplota, "tiskteplota", 2000, NULL, 1, NULL);
 //	xTaskCreate(tisk_vlhkost, "tiskvlhkost", 2000, NULL, 1, NULL);
 //	xTaskCreate(tisk_hodnot, "tiskhodnot", 2000,(void*) HODNOTA11, 1, NULL);
 //	xTaskCreate(blik_led, "blikled", 2000, NULL, 1, NULL);
-
-
-	for(;;);
-
-
+//	}
 }
-
 
 
 

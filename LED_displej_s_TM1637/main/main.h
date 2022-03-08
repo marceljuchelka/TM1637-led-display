@@ -16,8 +16,8 @@
 /* deklarace */
 #define witty  1
 #if witty == 1
-#define EXAMPLE_ESP_WIFI_SSID       "Svereo wifi"
-#define EXAMPLE_ESP_WIFI_PASS		"svereo1122"
+#define EXAMPLE_ESP_WIFI_SSID       "TeePee"
+#define EXAMPLE_ESP_WIFI_PASS		"07006400aa"
 #else
 #define EXAMPLE_ESP_WIFI_SSID       "Hoass"
 #define EXAMPLE_ESP_WIFI_PASS		"Hoas12345"
@@ -41,7 +41,7 @@ enum {
 
 /* pro TM_1637 displej dekuji https://github.com/AlexAlexFr  */
 #define TM_1637_DIO	GPIO_NUM_2
-#define TM_1637_CLK	GPIO_NUM_1
+#define TM_1637_CLK	GPIO_NUM_3
 
 
 #define DIO_INP  	gpio_set_direction(TM_1637_DIO, GPIO_MODE_DEF_INPUT)
