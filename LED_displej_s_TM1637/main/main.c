@@ -30,13 +30,15 @@
 #include "lwip/sys.h"
 #include <netdb.h>
 #include "main.h"
+
 #include "sdkconfig.h"
 
 
 
 
 
-#if witty == 1
+
+#if witty == 0
 	#define senzor_web_teplota	"&sensor[marcel_teplota_prace]="
 	#define senzor_web_vlhkost	"&sensor[marcel_vlhkost_prace]="
 	#define senzor_web_jas		"&sensor[marcel_jas_prace]="

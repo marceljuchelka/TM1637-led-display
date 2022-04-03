@@ -40,8 +40,8 @@ enum {
 
 
 /* pro TM_1637 displej dekuji https://github.com/AlexAlexFr  */
-#define TM_1637_DIO	GPIO_NUM_2
-#define TM_1637_CLK	GPIO_NUM_3
+#define TM_1637_DIO	GPIO_NUM_14
+#define TM_1637_CLK	GPIO_NUM_16
 
 
 #define DIO_INP  	gpio_set_direction(TM_1637_DIO, GPIO_MODE_DEF_INPUT)
