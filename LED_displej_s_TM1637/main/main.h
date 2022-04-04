@@ -19,8 +19,8 @@
 #define EXAMPLE_ESP_WIFI_PASS		"svereo1122"
 #define jas							3
 #else
-#define EXAMPLE_ESP_WIFI_SSID       "Hoass"
-#define EXAMPLE_ESP_WIFI_PASS		"Hoas12345"
+#define EXAMPLE_ESP_WIFI_SSID       "TeePee"
+#define EXAMPLE_ESP_WIFI_PASS		"07006400aa"
 #endif
 #define EXAMPLE_ESP_MAXIMUM_RETRY  	10
 
@@ -40,8 +40,8 @@ enum {
 
 
 /* pro TM_1637 displej dekuji https://github.com/AlexAlexFr  */
-#define TM_1637_DIO	GPIO_NUM_14
-#define TM_1637_CLK	GPIO_NUM_12
+#define TM_1637_DIO	GPIO_NUM_2
+#define TM_1637_CLK	GPIO_NUM_0
 
 
 #define DIO_INP  	gpio_set_direction(TM_1637_DIO, GPIO_MODE_DEF_INPUT)

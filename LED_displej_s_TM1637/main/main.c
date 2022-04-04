@@ -547,11 +547,12 @@ void cas_to_led(void *pvParameters){
     setenv("TZ", "CET-1CEST,M3.5.0,M10.5.0/3", 1);
     tzset();
     localtime_r(&now, &timeinfo);
-    if(timeinfo.tm_hour>6 && (timeinfo.tm_hour< 21)) led_day_set();
-    else led_night_set();
+//    if(timeinfo.tm_hour>6 && (timeinfo.tm_hour< 21)) led_day_set();
+//    else led_night_set();
+    led_night_set();
     strftime(strftime_buf, sizeof(strftime_buf), "%H%M", &timeinfo);
-//    printf(strftime_buf);
-//    ESP_LOGI(TAG,strftime_buf);
+    printf(strftime_buf);
+    ESP_LOGI(TAG,strftime_buf);
 	led_print(0, strftime_buf);
 	if(timeinfo.tm_sec &1) {
 		led_dots(1);
